@@ -4,11 +4,14 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
 @Catch()
 export class GlobalFilter<T> implements ExceptionFilter {
+  private logger = new Logger(GlobalFilter.name);
+
   catch(exception: T, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -25,6 +28,8 @@ export class GlobalFilter<T> implements ExceptionFilter {
       customMessage = exception.getResponse()['message'];
     } else {
       customMessage = 'INTERNAL_SERVER_ERROR';
+      // 에러 로그 추가
+      this.logger.error(exception);
     }
 
     response.status(status).json({
