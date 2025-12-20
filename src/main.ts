@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { GlobalExceptionFilter } from './filter/global.exception.filter';
+import { GlobalExceptionFilter } from './filter/globalExceptionFilter';
 import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {

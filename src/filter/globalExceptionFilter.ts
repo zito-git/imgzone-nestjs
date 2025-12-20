@@ -1,33 +1,30 @@
 import {
-  ArgumentsHost,
-  Catch,
   ExceptionFilter,
+  Catch,
+  ArgumentsHost,
   HttpException,
   HttpStatus,
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 
-@Catch() // 모든 에러 받음
+@Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    // exception 타입 명시
+    // exception 타입 정확하게 확인
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    // 배열, 문자열 관리
+    // exception 타입 확인하고 customMessage
     let customMessage: string[] | string = 'INTERNAL_SERVER_ERROR';
     if (exception instanceof HttpException) {
-      customMessage =
-        typeof exception.getResponse() === 'object'
-          ? exception.getResponse()['message']
-          : exception.message;
+      customMessage = exception.getResponse()['message'];
     } else {
       customMessage = 'INTERNAL_SERVER_ERROR';
       this.logger.error(exception);

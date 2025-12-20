@@ -1,0 +1,18 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model member {
+  id       BigInt    @id(map: "pri_member_key") @default(autoincrement())
+  uuid     String    @unique(map: "unique_member_uuid_key") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userid   String    @unique(map: "unique_member_userid_key") @db.VarChar(50)
+  password String    @db.VarChar(300)
+  created  DateTime? @default(now()) @db.Timestamptz(6)
+  email    String    @db.VarChar(50)
+}
