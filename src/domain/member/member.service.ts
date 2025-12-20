@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ReqRegisterDto } from './dto/reqRegisterDto';
 import bcrypt from 'bcrypt';
@@ -26,7 +30,7 @@ export class MemberService {
 
     if (result === null) {
       // 아이디 틀림
-      throw new BadRequestException('아이디 또는 비밀번호를 확인해주세요');
+      throw new UnauthorizedException('아이디 또는 비밀번호를 확인해주세요');
     }
 
     return result;
@@ -57,7 +61,7 @@ export class MemberService {
     const passwordResult = await bcrypt.compare(reqPassword, dbPassword);
     if (passwordResult === false) {
       // 비밀번호 틀림
-      throw new BadRequestException('아이디 또는 비밀번호를 확인해주세요');
+      throw new UnauthorizedException('아이디 또는 비밀번호를 확인해주세요');
     }
 
     return passwordResult;
