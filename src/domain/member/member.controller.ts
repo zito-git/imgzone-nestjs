@@ -5,14 +5,14 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  UseGuards,
 } from '@nestjs/common';
+import { AuthService } from 'src/auth/auth.service';
+import { Roles } from 'src/auth/roles.decorator';
 import { ReqLoginDto } from './dto/reqLoginDto';
 import { ReqRegisterDto } from './dto/reqRegisterDto';
 import { MemberService } from './member.service';
-import { AuthService } from 'src/auth/auth.service';
-import { AuthGuard } from 'src/auth/auth.guard';
-@UseGuards(AuthGuard)
+
+@Roles(['ADMIN'])
 @Controller('member')
 export class MemberController {
   constructor(
