@@ -7,10 +7,15 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { jwtConstants } from './constants';
+import { Reflector } from '@nestjs/core';
+import { Roles } from './roles.decorator';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly reflector: Reflector,
+  ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
@@ -25,7 +30,6 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('토큰이 존재하지 않음');
     }
     try {
-      console.log(jwtConstants.secret);
       const payload = await this.jwtService.verifyAsync(token, {
         secret: jwtConstants.secret,
       });
@@ -35,6 +39,19 @@ export class AuthGuard implements CanActivate {
     } catch {
       throw new UnauthorizedException('토큰 검증 실패');
     }
+
+    // 권한 확인하기
+
+    const roles = this.reflector.getAllAndOverride(Roles, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    const { user } = context.switchToHttp().getRequest();
+
+    if (!roles.includes(user.role)) {
+      throw new UnauthorizedException('권한없음');
+    }
+
     return true;
   }
   private extractTokenFromHeader(request: Request): string | undefined {
