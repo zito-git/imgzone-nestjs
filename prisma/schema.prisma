@@ -15,4 +15,5 @@ model member {
   password String    @db.VarChar(300)
   created  DateTime? @default(now()) @db.Timestamptz(6)
   email    String    @db.VarChar(50)
+  role     String    @default("USER") @db.VarChar(10)
 }

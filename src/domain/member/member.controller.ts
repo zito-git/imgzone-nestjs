@@ -1,20 +1,41 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { ReqLoginDto } from './dto/reqLoginDto';
 import { ReqRegisterDto } from './dto/reqRegisterDto';
 import { MemberService } from './member.service';
-import { ReqLoginDto } from './dto/reqLoginDto';
-
+import { AuthService } from 'src/auth/auth.service';
+import { AuthGuard } from 'src/auth/auth.guard';
+@UseGuards(AuthGuard)
 @Controller('member')
 export class MemberController {
-  constructor(private readonly memberService: MemberService) {}
+  constructor(
+    private readonly memberService: MemberService,
+    private readonly authService: AuthService,
+  ) {}
+
+  @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() reqLoginDto: ReqLoginDto, @Res() res) {
-    const result = await this.memberService.login(reqLoginDto);
-    return res.status(HttpStatus.OK).json(result);
+  async login(@Body() reqLoginDto: ReqLoginDto) {
+    const result = await this.authService.login(reqLoginDto);
+    return result;
   }
 
+  @HttpCode(HttpStatus.CREATED)
   @Post('register')
-  async register(@Body() reqRegisterDto: ReqRegisterDto, @Res() res) {
+  async register(@Body() reqRegisterDto: ReqRegisterDto) {
     const result = await this.memberService.register(reqRegisterDto);
-    return res.status(HttpStatus.CREATED).json(result);
+    return result;
+  }
+
+  @Get('test')
+  test() {
+    return 'token ok';
   }
 }
