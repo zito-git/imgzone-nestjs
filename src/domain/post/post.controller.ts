@@ -18,6 +18,9 @@ export class PostController {
   @Post('upload')
   @UseInterceptors(FilesInterceptor('files', 10, imageUploadOptions))
   uploadFile(@UploadedFiles() files: Array<Express.Multer.File>) {
-    return files.map((file) => file.filename);
+    const fileArr: string[] = files.map((file) => file.filename);
+
+    console.log(files);
+    return this.postService.save(fileArr);
   }
 }
