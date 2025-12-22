@@ -13,7 +13,7 @@ const myWorker = new Worker(
   async (job) => {
     const { files } = job.data;
     if (!files) return;
-    console.log("🔥 처리 시작:", files);
+    console.log("처리 시작:", files);
 
     await Promise.all(
       files.map(async (fileName) => {
