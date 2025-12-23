@@ -5,6 +5,7 @@ const sharp = require("sharp");
 require("dotenv").config();
 
 const webpDir = path.join(process.cwd(), "webp");
+console.log(process.cwd());
 
 if (!fs.existsSync(webpDir)) fs.mkdirSync(webpDir, { recursive: true });
 
@@ -24,7 +25,7 @@ const myWorker = new Worker(
 
         const outputFileName = path.parse(fileName).name + ".webp";
         const outputPath = path.join(webpDir, outputFileName);
-        await sharp(inputPath).webp({ quality: 80 }).toFile(outputPath);
+        sharp(inputPath).webp({ quality: 80 }).toFile(outputPath);
         console.log(`${fileName} -> ${outputFileName}`);
       })
     );
@@ -35,6 +36,7 @@ const myWorker = new Worker(
       host: process.env.MY_URL,
       port: 6379,
     },
+    concurrency: 3, //진행 워커 갯수
   }
 );
 
