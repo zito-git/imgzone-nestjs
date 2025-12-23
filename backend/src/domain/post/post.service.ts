@@ -20,7 +20,11 @@ export class PostService {
       });
 
       //큐 등록
-      await myQueue.add('job', { files: fileArr });
+      await myQueue.add(
+        'job',
+        { files: fileArr },
+        { attempts: 5, removeOnComplete: 300 },
+      );
     } catch {
       throw new InternalServerErrorException();
     }
