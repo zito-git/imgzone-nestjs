@@ -8,12 +8,14 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/auth/decorator/public.decorator';
-import { imageUploadOptions, PostService } from './post.service';
+import { imageUploadOptions, UploadService } from './service/upload.service';
 
-@Public()
+// @Public()
 @Controller('post')
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(private readonly uploadService: UploadService) {}
+
+  //파일 업로드
   @HttpCode(HttpStatus.OK)
   @Post('upload')
   @UseInterceptors(FilesInterceptor('files', 10, imageUploadOptions))
@@ -21,6 +23,6 @@ export class PostController {
     const fileArr: string[] = files.map((file) => file.filename);
 
     console.log(files);
-    return this.postService.save(fileArr);
+    return this.uploadService.save(fileArr);
   }
 }
