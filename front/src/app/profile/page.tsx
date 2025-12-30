@@ -10,12 +10,13 @@ import Input from '@/components/common/Input';
 import Button from '@/components/common/Button';
 import { User, Image as ImageType } from '@/types';
 
-const dummyUser: User = { id: '1', email: 'user@example.com', username: '홍길동', createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), updatedAt: new Date().toISOString() };
+// 고정된 날짜 사용 (Hydration 에러 방지)
+const dummyUser: User = { id: '1', email: 'user@example.com', username: '홍길동', createdAt: '2024-11-20T10:00:00.000Z', updatedAt: '2024-12-20T10:00:00.000Z' };
 
 const dummyImages: ImageType[] = [
-  { id: '1', url: 'https://picsum.photos/seed/user1/800/600', thumbnailUrl: 'https://picsum.photos/seed/user1/400/400', title: '첫 번째 이미지', userId: '1', views: 234, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(), updatedAt: new Date().toISOString() },
-  { id: '2', url: 'https://picsum.photos/seed/user2/800/600', thumbnailUrl: 'https://picsum.photos/seed/user2/400/400', title: '여행 사진', userId: '1', views: 567, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(), updatedAt: new Date().toISOString() },
-  { id: '3', url: 'https://picsum.photos/seed/user3/800/600', thumbnailUrl: 'https://picsum.photos/seed/user3/400/400', userId: '1', views: 89, createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), updatedAt: new Date().toISOString() },
+  { id: '1', url: 'https://picsum.photos/seed/user1/800/600', thumbnailUrl: 'https://picsum.photos/seed/user1/400/400', title: '첫 번째 이미지', userId: '1', views: 234, createdAt: '2024-12-13T10:00:00.000Z', updatedAt: '2024-12-13T10:00:00.000Z' },
+  { id: '2', url: 'https://picsum.photos/seed/user2/800/600', thumbnailUrl: 'https://picsum.photos/seed/user2/400/400', title: '여행 사진', userId: '1', views: 567, createdAt: '2024-12-17T14:00:00.000Z', updatedAt: '2024-12-17T14:00:00.000Z' },
+  { id: '3', url: 'https://picsum.photos/seed/user3/800/600', thumbnailUrl: 'https://picsum.photos/seed/user3/400/400', userId: '1', views: 89, createdAt: '2024-12-20T08:00:00.000Z', updatedAt: '2024-12-20T08:00:00.000Z' },
 ];
 
 export default function ProfilePage() {
