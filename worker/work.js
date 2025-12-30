@@ -4,7 +4,8 @@ const fs = require("fs");
 const sharp = require("sharp");
 require("dotenv").config();
 
-const webpDir = path.join(process.cwd(), "webp");
+//업로드 폴더에 그대로 넣음
+//const webpDir = path.join(process.cwd(), "webp");
 console.log(process.cwd());
 
 if (!fs.existsSync(webpDir)) fs.mkdirSync(webpDir, { recursive: true });
@@ -24,7 +25,7 @@ const myWorker = new Worker(
           return console.error("파일 없음:", inputPath);
 
         const outputFileName = path.parse(fileName).name + ".webp";
-        const outputPath = path.join(webpDir, outputFileName);
+        const outputPath = path.join(inputPath, outputFileName);
         sharp(inputPath).webp({ quality: 80 }).toFile(outputPath);
         console.log(`${fileName} -> ${outputFileName}`);
       })
@@ -33,7 +34,7 @@ const myWorker = new Worker(
   },
   {
     connection: {
-      host: process.env.MY_URL,
+      host: "redis",
       port: 6379,
     },
     concurrency: 3, //진행 워커 갯수

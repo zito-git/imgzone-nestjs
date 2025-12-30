@@ -1,0 +1,9 @@
+services:
+  worker:
+    build: .
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
