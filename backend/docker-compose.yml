@@ -1,0 +1,15 @@
+services:
+  imgzone:
+    build: .
+    container_name: imgzone
+    restart: always
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true
