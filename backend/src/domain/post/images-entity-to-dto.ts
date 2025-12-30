@@ -16,7 +16,7 @@ export class ImagesEntityToDto {
   }
 
   private formatKST(date: Date): string {
-    const kst = new Date(date.getTime() + 0 * 60 * 60 * 1000);
+    const kst = new Date(date.getTime() + 9 * 60 * 60 * 1000);
 
     const yyyy = kst.getFullYear();
     const mm = String(kst.getMonth() + 1).padStart(2, '0');
