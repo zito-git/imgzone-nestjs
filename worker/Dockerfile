@@ -4,9 +4,10 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-RUN npm install
+
 
 COPY . ./
+RUN npm install
 
 
 CMD ["node", "work.js"]

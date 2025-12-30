@@ -1,8 +1,12 @@
 services:
   worker:
+    container_name: worker
     build: .
     networks:
       - app-network
+    volumes:
+      - ../backend/uploads:/app/uploads
+      - ../backend/uploads:/app/webp
 
 networks:
   app-network:
