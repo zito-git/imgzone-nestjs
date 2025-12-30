@@ -9,6 +9,13 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.useGlobalPipes(new ValidationPipe());
   app.use(helmet());
+  app.use((req, res, next) => {
+    if (req.url.startsWith('/uploads')) {
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    }
+    next();
+  });
+
   app.enableCors({
     origin: '*', // 전부 허용 (개발용)
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
