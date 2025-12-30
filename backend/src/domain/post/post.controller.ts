@@ -1,19 +1,23 @@
 import {
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { Public } from 'src/auth/decorator/public.decorator';
+import { InfoService } from './service/info.service';
 import { imageUploadOptions, UploadService } from './service/upload.service';
 
-@Public()
 @Controller('post')
 export class PostController {
-  constructor(private readonly uploadService: UploadService) {}
+  constructor(
+    private readonly uploadService: UploadService,
+    private readonly infoService: InfoService,
+  ) {}
 
   //파일 업로드
   @HttpCode(HttpStatus.OK)
@@ -24,5 +28,11 @@ export class PostController {
 
     console.log(files);
     return this.uploadService.save(fileArr);
+  }
+
+  @Get('info')
+  getMyInfo(@Req() req) {
+    const uuid: string = req.user.id;
+    return this.infoService.getMyInfo(uuid);
   }
 }
