@@ -8,7 +8,7 @@ export interface User {
   updatedAt: string;
 }
 
-// Image 관련 타입
+// Image 관련 타입 (기존 - 추후 제거 예정)
 export interface Image {
   id: string;
   url: string;
@@ -21,22 +21,37 @@ export interface Image {
   updatedAt: string;
 }
 
+// Post 관련 타입 (API 응답 형식)
+export interface Post {
+  id: string;
+  userid: string;
+  role: string;
+  created: string;
+  imgList: string[];
+}
+
+export interface PostListResponse {
+  post: Post[];
+  pageInfo: {
+    nextCursor: string | null;
+    hasNext: boolean;
+  };
+}
+
 // Auth 관련 타입
 export interface LoginRequest {
-  email: string;
+  userid: string;
   password: string;
 }
 
 export interface RegisterRequest {
+  userid: string;
   email: string;
-  username: string;
   password: string;
-  passwordConfirm: string;
 }
 
 export interface AuthResponse {
-  accessToken: string;
-  user: User;
+  access_token: string;
 }
 
 // API Response 타입
@@ -47,16 +62,8 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
-// Pagination 타입
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+// Cursor 기반 Pagination 타입
+export interface CursorPaginationParams {
+  cursor?: string;
+  size?: number;
 }

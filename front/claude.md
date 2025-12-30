@@ -223,6 +223,60 @@ export const routeConfig: RouteConfig[] = [
 | 권한 관리 | 중앙 집중 | 분산 |
 | 확장성 | 좋음 | 보통 |
 
+### 14차 작업 - 이미지 업로드 & 리스트 API 연동
+- [x] `src/types/index.ts` 수정
+  - Post, PostListResponse 타입 추가
+  - 커서 기반 페이지네이션 타입 추가
+- [x] `src/components/image/ImageUploader.tsx` 수정
+  - 단일 파일 → 다중 파일 업로드 지원 (최대 10개)
+  - 허용 확장자: `.png`, `.jpg`, `.jpeg`, `.heic`, `.heif`
+  - 미리보기 그리드 UI
+  - 개별 파일 삭제 기능
+- [x] `src/app/page.tsx` 전면 수정
+  - 더미 데이터 제거
+  - GET `/member/get-post?cursor&size=20` API 연동
+  - POST `/post/upload` (multipart/form-data) API 연동
+  - 커서 기반 페이지네이션 (더보기 버튼)
+  - 로딩/빈 상태 UI
+  - 업로드 후 리스트 새로고침
+
+**API 스펙:**
+```
+# 이미지 리스트 조회
+GET /member/get-post?cursor={cursor}&size=20
+Response: { post: Post[], pageInfo: { nextCursor, hasNext } }
+
+# 이미지 업로드
+POST /post/upload
+Content-Type: multipart/form-data
+Authorization: Bearer {token}
+Body: files (최대 10개)
+```
+
+### 15차 작업 - 이미지 뷰어 & 상대 시간 표시
+- [x] `src/lib/utils.ts` 수정
+  - parseDate 함수 추가 ("2025.12.30 14:19:41" 형식 지원)
+  - formatRelativeTime 개선 (하루 이내: 상대시간 / 하루 이상: 날짜)
+- [x] `src/app/page.tsx` 이미지 뷰어 추가
+  - 이미지 클릭 시 풀스크린 모달로 확대
+  - 여러 이미지일 경우 좌우 화살표로 탐색
+  - 키보드 지원 (ESC: 닫기, ←/→: 이전/다음)
+  - 이미지 인디케이터 (1/3 형식)
+  - 상대 시간 표시
+
+**상대 시간 표시 규칙:**
+| 경과 시간 | 표시 |
+|----------|------|
+| 1분 미만 | 방금 전 |
+| 1분 ~ 59분 | N분 전 |
+| 1시간 ~ 23시간 | N시간 전 |
+| 1일 이상 | 2024년 12월 30일 (날짜 형식) |
+
+### 16차 작업 - 업로드 용량 초과 에러 처리
+- [x] `src/app/page.tsx` 수정
+  - fetch를 try-catch로 감싸서 네트워크 에러 처리
+  - 413 에러 또는 연결 끊김 시 "파일 용량이 너무 큽니다" 메시지 표시
+
 ---
 
 ## 수정/개선 필요
@@ -232,11 +286,13 @@ export const routeConfig: RouteConfig[] = [
 - [x] 인증 상태 관리 (Context API → Cookie)
 - [x] 로그아웃 기능 연동
 - [x] 경로 보호 (Middleware)
-- [ ] 실제 이미지 업로드 구현
+- [x] 이미지 업로드 API 연동
+- [x] 이미지 리스트 API 연동
+- [x] 커서 기반 페이지네이션
+- [x] 이미지 확대 보기
+- [x] 상대 시간 표시
 - [ ] 이미지 삭제 기능
-- [ ] 무한 스크롤 또는 페이지네이션
 - [ ] SEO 메타데이터 설정
-- [ ] 로딩 상태 UI (Skeleton)
 
 ---
 
