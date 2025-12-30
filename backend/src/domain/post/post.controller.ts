@@ -10,7 +10,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { imageUploadOptions, UploadService } from './service/upload.service';
 
-// @Public()
+@Public()
 @Controller('post')
 export class PostController {
   constructor(private readonly uploadService: UploadService) {}

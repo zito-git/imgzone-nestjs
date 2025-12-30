@@ -56,7 +56,8 @@ export const imageUploadOptions = {
   },
 
   storage: diskStorage({
-    destination: './uploads',
+    //루트 경로 기준 바깥으로 생성
+    destination: path.join(process.cwd(), 'uploads'),
     filename: (req, file, cb) => {
       const ext = path.extname(file.originalname);
       cb(null, `${uuidv4()}${ext}`);
