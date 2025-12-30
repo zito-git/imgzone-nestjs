@@ -42,7 +42,7 @@ export const myQueue = new Queue('images', {
 
 export const imageUploadOptions = {
   fileFilter: (req, file, cb) => {
-    const allowed = ['.png', '.jpg', '.jpeg'];
+    const allowed = ['.png', '.jpg', '.jpeg', '.heic', '.heif'];
     const ext = path.extname(file.originalname).toLowerCase();
 
     if (!allowed.includes(ext)) {

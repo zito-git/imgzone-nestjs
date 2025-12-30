@@ -8,7 +8,7 @@ export class ImagesEntityToDto {
   constructor(images: any) {
     this.id = images.id.toString();
     this.imgList = images.img.map((url: string) =>
-      url.replace(/\.(jpg|jpeg|png)$/i, '.webp'),
+      url.replace(/\.(jpg|jpeg|png|heic|heif)$/i, '.webp'),
     );
     this.created = this.formatKST(images.created);
     this.userid = images.member.userid;
