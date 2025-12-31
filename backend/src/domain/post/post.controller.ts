@@ -32,6 +32,7 @@ export class PostController {
   }
 
   @Get('info')
+  @HttpCode(HttpStatus.OK)
   getMyInfo(@Req() req) {
     const uuid: string = req.user.id;
     return this.infoService.getMyInfo(uuid);
