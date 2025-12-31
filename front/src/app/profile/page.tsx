@@ -146,7 +146,7 @@ export default function ProfilePage() {
                 <span className="font-semibold text-slate-900">
                   {profileData.user.role}
                 </span>
-                <span className="text-slate-500 ml-1">등급</span>
+                <span className="text-slate-500 ml-1">회원</span>
               </div>
             </div>
           </div>
