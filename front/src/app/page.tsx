@@ -100,6 +100,17 @@ export default function HomePage() {
       throw new Error('파일 용량이 너무 큽니다. 더 작은 파일을 선택해주세요.');
     }
 
+    // 401 에러 처리
+    if (response.status === 401) {
+      sessionStorage.removeItem('accessToken');
+      sessionStorage.removeItem('user');
+      toast.error('토큰이 만료되었습니다. 다시 로그인해주세요.');
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
+      return;
+    }
+
     if (!response.ok) {
       if (response.status === 413) {
         throw new Error('파일 용량이 너무 큽니다. 더 작은 파일을 선택해주세요.');

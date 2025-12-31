@@ -19,54 +19,39 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// 쿠키 유틸리티 함수
-function setCookie(name: string, value: string, days: number = 7) {
-  const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`;
-}
-
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : null;
-}
-
-function deleteCookie(name: string) {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 페이지 로드 시 쿠키에서 토큰 확인
-    const savedToken = getCookie('accessToken');
-    const savedUser = getCookie('user');
+    // 페이지 로드 시 세션스토리지에서 토큰 확인
+    const savedToken = sessionStorage.getItem('accessToken');
+    const savedUser = sessionStorage.getItem('user');
 
     if (savedToken && savedUser) {
       try {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
       } catch {
-        deleteCookie('accessToken');
-        deleteCookie('user');
+        sessionStorage.removeItem('accessToken');
+        sessionStorage.removeItem('user');
       }
     }
     setIsLoading(false);
   }, []);
 
   const login = (newToken: string, userData: User) => {
-    // 쿠키에 저장 (7일 유효)
-    setCookie('accessToken', newToken, 7);
-    setCookie('user', JSON.stringify(userData), 7);
+    // 세션스토리지에 저장
+    sessionStorage.setItem('accessToken', newToken);
+    sessionStorage.setItem('user', JSON.stringify(userData));
     setToken(newToken);
     setUser(userData);
   };
 
   const logout = () => {
-    deleteCookie('accessToken');
-    deleteCookie('user');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('user');
     setToken(null);
     setUser(null);
   };

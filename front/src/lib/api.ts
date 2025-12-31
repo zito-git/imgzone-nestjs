@@ -1,4 +1,5 @@
 import { ApiResponse } from '@/types';
+import { toast } from 'sonner';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
@@ -11,6 +12,20 @@ class ApiClient {
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+  }
+
+  private handleUnauthorized() {
+    // 401 에러 시 세션 클리어 및 로그인 페이지로 리다이렉트
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('accessToken');
+      sessionStorage.removeItem('user');
+      toast.error('토큰이 만료되었습니다. 다시 로그인해주세요.');
+
+      // 토스트가 표시된 후 리다이렉트
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
+    }
   }
 
   private async request<T>(
@@ -30,7 +45,7 @@ class ApiClient {
     }
 
     const token =
-      typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      typeof window !== 'undefined' ? sessionStorage.getItem('accessToken') : null;
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -46,6 +61,15 @@ class ApiClient {
         ...init,
         headers,
       });
+
+      // 401 에러 처리
+      if (response.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          error: '토큰이 만료되었습니다. 다시 로그인해주세요.',
+        };
+      }
 
       const data = await response.json();
 
@@ -95,7 +119,7 @@ class ApiClient {
     formData.append(fieldName, file);
 
     const token =
-      typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
+      typeof window !== 'undefined' ? sessionStorage.getItem('accessToken') : null;
 
     const headers: HeadersInit = {};
     if (token) {
@@ -108,6 +132,15 @@ class ApiClient {
         headers,
         body: formData,
       });
+
+      // 401 에러 처리
+      if (response.status === 401) {
+        this.handleUnauthorized();
+        return {
+          success: false,
+          error: '토큰이 만료되었습니다. 다시 로그인해주세요.',
+        };
+      }
 
       const data = await response.json();
 

@@ -54,3 +54,38 @@ method : get
 주소 : /member/get-post?cursor&size=20
 파라미터는 cursor와 size 2개임
 더미 데이터 제거하고 위의 작업을 해주고 claude.md에 리스트업 해줘
+
+6. 지금 jwt 토큰이 쿠키에서 관리 되고 있는거 같은데, 이거 지금 세션스토리지에서 관리되게 해주고, 제일중요한게 지금 middleware 보면 공개 경로 이외에는 모든 경로에 헤더에 Authorization 이름으로 토큰을 담아서 해당하는 백엔드 경로에 전송해야함.
+
+7. 업로드 시 파일이 어태치 되면 지금 올라온 이미지들의 총 용량을 알려주면 좋을거같고, 50MB가 넘으면 못 올린다고 띄워주기
+
+8. 프로필 조회하기
+   주소 : /post/info
+   method : get
+   반환값
+   {
+   "user":{
+   "id": "test",
+   "role": "USER",
+   "email": "tsadf@naver.com"
+   },
+   "post":[
+   {
+   "id": "83",
+   "imgList":[
+   "3252bd6f-4a51-4797-b271-d875be11a31d.png",
+   "e315d9a6-adcd-4c5c-b7db-d7257280b594.png"
+   ],
+   "created": "2025-12-30T16:06:13.720Z"
+   },
+   {
+   "id": "82",
+   "imgList":[
+   "05496a9a-a36e-43e8-ad97-ec459fc0cc86.png",
+   "fdc2d972-8f26-4ee4-b70c-f8117edff1e6.png",
+   "e812f6a1-c612-412c-a3a8-928de5b3698f.png"
+   ],
+   "created": "2025-12-30T15:28:27.597Z"
+   }
+   ]
+   }

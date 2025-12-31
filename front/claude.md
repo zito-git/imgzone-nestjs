@@ -277,20 +277,140 @@ Body: files (최대 10개)
   - fetch를 try-catch로 감싸서 네트워크 에러 처리
   - 413 에러 또는 연결 끊김 시 "파일 용량이 너무 큽니다" 메시지 표시
 
+### 17차 작업 - 세션스토리지 & 업로드 용량 제한 & 프로필 조회
+- [x] JWT 토큰 관리 방식 변경 (쿠키 → 세션스토리지)
+  - `src/contexts/AuthContext.tsx` 수정
+    - 쿠키 유틸리티 함수 제거
+    - sessionStorage 사용으로 변경
+  - `src/lib/api.ts` 수정
+    - localStorage → sessionStorage로 변경
+    - Authorization 헤더 자동 추가 (기존 기능 유지)
+  - `src/middleware.ts` 삭제
+    - 세션스토리지는 클라이언트 전용이므로 서버 사이드 Middleware 제거
+  - `src/app/profile/page.tsx` 수정
+    - useAuth를 사용한 클라이언트 사이드 경로 보호 추가
+- [x] 업로드 시 파일 총 용량 제한 기능
+  - `src/components/image/ImageUploader.tsx` 수정
+    - 총 파일 용량 계산 (50MB 제한)
+    - 파일 추가 시 총 용량 체크
+    - UI에 총 용량 표시 (현재 용량 / 50MB)
+    - 50MB 초과 시:
+      - 에러 메시지 표시
+      - 업로드 버튼 비활성화
+      - 용량 텍스트 빨간색으로 강조
+- [x] 프로필 조회 API 연동
+  - `src/types/index.ts` 타입 추가
+    - ProfileUser, ProfilePost, ProfileResponse 타입 추가
+  - `src/app/profile/page.tsx` 전면 수정
+    - GET `/post/info` API 연동
+    - 더미 데이터 제거
+    - 실제 프로필 데이터 표시
+    - 이미지 그리드 (사용자가 업로드한 모든 이미지)
+    - 이미지 뷰어 (클릭 시 풀스크린, 좌우 탐색)
+    - 로딩 상태 UI
+    - 로그인하지 않은 경우 리다이렉트
+
+**API 스펙:**
+```
+# 프로필 조회
+GET /post/info
+Authorization: Bearer {token}
+Response: {
+  user: { id, role, email },
+  post: [{ id, imgList, created }]
+}
+```
+
+**변경 사항 요약:**
+- 토큰 저장소: 쿠키 → 세션스토리지 (탭 닫으면 자동 로그아웃)
+- 경로 보호: 서버 사이드 Middleware → 클라이언트 사이드 useAuth
+- 업로드 제한: 개별 파일 크기만 체크 → 총 용량도 체크 (50MB)
+- 프로필 페이지: 더미 데이터 → 실제 API 데이터
+
+### 18차 작업 - 프로필 페이지 포스트별 그룹화
+- [x] `src/app/profile/page.tsx` 수정
+  - 이미지 개별 표시 → 포스트별 그룹화
+  - 각 포스트를 하나의 카드로 표시
+  - 첫 번째 이미지를 대표 이미지로 사용
+  - 여러 이미지가 있을 경우 오른쪽 상단에 개수 표시 (예: 🖼️ 3)
+  - 포스트 카드 클릭 시 해당 포스트의 모든 이미지 뷰어로 표시
+  - 호버 시 오버레이 효과
+
+**변경 전:**
+- 모든 이미지를 개별적으로 펼쳐서 표시
+- Post 1 (이미지 3개) + Post 2 (이미지 2개) = 5개 카드
+
+**변경 후:**
+- 포스트별로 그룹화해서 표시
+- Post 1 (이미지 3개) + Post 2 (이미지 2개) = 2개 카드
+- 각 카드에 이미지 개수 표시
+
+### 19차 작업 - 401 에러 시 자동 로그인 페이지 리다이렉트
+- [x] `src/lib/api.ts` 수정
+  - handleUnauthorized() 메서드 추가
+    - sessionStorage 클리어 (accessToken, user)
+    - 로그인 페이지로 리다이렉트
+  - request() 메서드에 401 에러 체크 추가
+    - response.status === 401 시 handleUnauthorized() 호출
+  - uploadFile() 메서드에 401 에러 체크 추가
+    - response.status === 401 시 handleUnauthorized() 호출
+- [x] `src/app/profile/page.tsx` 수정
+  - fetchProfile()에 401 에러 처리 추가
+    - sessionStorage 클리어
+    - 토스트 메시지 표시
+    - 로그인 페이지로 리다이렉트
+- [x] `src/app/page.tsx` 수정
+  - handleUpload()에 401 에러 처리 추가
+    - sessionStorage 클리어
+    - 토스트 메시지 표시
+    - 로그인 페이지로 리다이렉트
+
+**동작 방식:**
+1. API 호출 시 401 에러 발생
+2. sessionStorage에서 토큰과 유저 정보 제거
+3. 에러 메시지 표시 ("인증이 만료되었습니다. 다시 로그인해주세요.")
+4. 자동으로 로그인 페이지로 리다이렉트
+
+**적용 위치:**
+- GET /post/info (프로필 조회)
+- POST /post/upload (이미지 업로드)
+- 기타 api.ts를 통한 모든 API 호출
+
+### 20차 작업 - 401 에러 시 토스트 메시지 개선
+- [x] `src/lib/api.ts` 수정
+  - sonner import 추가
+  - handleUnauthorized()에 토스트 메시지 추가
+    - "토큰이 만료되었습니다. 다시 로그인해주세요."
+  - 토스트 표시 후 100ms 대기 후 리다이렉트 (토스트가 보이도록)
+  - 에러 메시지 통일: "인증이 만료" → "토큰이 만료"
+- [x] `src/app/profile/page.tsx` 수정
+  - 에러 메시지 변경: "토큰이 만료되었습니다. 다시 로그인해주세요."
+- [x] `src/app/page.tsx` 수정
+  - 에러 메시지 변경: "토큰이 만료되었습니다. 다시 로그인해주세요."
+  - 토스트 표시 후 100ms 대기 후 리다이렉트
+
+**개선 사항:**
+- 모든 401 에러에서 일관된 토스트 메시지 표시
+- 사용자에게 명확한 피드백 제공
+- 토스트가 표시될 시간을 주기 위해 setTimeout 사용
+- 메시지 통일: "토큰이 만료되었습니다. 다시 로그인해주세요."
+
 ---
 
 ## 수정/개선 필요
 - [x] 회원가입 API 연동
 - [x] 토스트 메시지 (sonner)
 - [x] 로그인 API 연동
-- [x] 인증 상태 관리 (Context API → Cookie)
+- [x] 인증 상태 관리 (Context API → Cookie → SessionStorage)
 - [x] 로그아웃 기능 연동
-- [x] 경로 보호 (Middleware)
+- [x] 경로 보호 (Middleware → 클라이언트 사이드)
 - [x] 이미지 업로드 API 연동
 - [x] 이미지 리스트 API 연동
 - [x] 커서 기반 페이지네이션
 - [x] 이미지 확대 보기
 - [x] 상대 시간 표시
+- [x] 업로드 총 용량 제한 (50MB)
+- [x] 프로필 조회 API 연동
 - [ ] 이미지 삭제 기능
 - [ ] SEO 메타데이터 설정
 

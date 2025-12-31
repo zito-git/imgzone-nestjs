@@ -67,3 +67,21 @@ export interface CursorPaginationParams {
   cursor?: string;
   size?: number;
 }
+
+// Profile 관련 타입
+export interface ProfileUser {
+  id: string;
+  role: string;
+  email: string;
+}
+
+export interface ProfilePost {
+  id: string;
+  imgList: string[];
+  created: string;
+}
+
+export interface ProfileResponse {
+  user: ProfileUser;
+  post: ProfilePost[];
+}

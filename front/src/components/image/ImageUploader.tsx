@@ -24,6 +24,11 @@ export default function ImageUploader({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // 총 파일 용량 계산 (50MB 제한)
+  const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
+  const totalSize = previews.reduce((sum, p) => sum + p.file.size, 0);
+  const isTotalSizeExceeded = totalSize > MAX_TOTAL_SIZE;
+
   const validateFile = (file: File): boolean => {
     const ext = "." + file.name.split(".").pop()?.toLowerCase();
     if (!acceptedExtensions.includes(ext)) {
@@ -53,7 +58,18 @@ export default function ImageUploader({
       }
     }
 
-    setPreviews((prev) => [...prev, ...validFiles]);
+    const newPreviews = [...previews, ...validFiles];
+    const newTotalSize = newPreviews.reduce((sum, p) => sum + p.file.size, 0);
+
+    // 총 용량 체크
+    if (newTotalSize > MAX_TOTAL_SIZE) {
+      setError(`총 파일 용량이 ${formatFileSize(MAX_TOTAL_SIZE)}를 초과했습니다`);
+      // 추가된 파일들의 URL 해제
+      validFiles.forEach((f) => URL.revokeObjectURL(f.url));
+      return;
+    }
+
+    setPreviews(newPreviews);
   };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -228,9 +244,14 @@ export default function ImageUploader({
             </div>
 
             <div className="mt-4 flex items-center justify-between">
-              <p className="text-sm text-slate-500">
-                {previews.length}개 선택됨
-              </p>
+              <div>
+                <p className="text-sm text-slate-500">
+                  {previews.length}개 선택됨
+                </p>
+                <p className={`text-xs ${isTotalSizeExceeded ? 'text-red-500 font-medium' : 'text-slate-400'}`}>
+                  총 용량: {formatFileSize(totalSize)} / {formatFileSize(MAX_TOTAL_SIZE)}
+                </p>
+              </div>
               <div className="flex gap-2">
                 <Button
                   variant="ghost"
@@ -245,6 +266,7 @@ export default function ImageUploader({
                   size="sm"
                   onClick={handleUpload}
                   isLoading={isUploading}
+                  disabled={isTotalSizeExceeded}
                 >
                   업로드
                 </Button>
