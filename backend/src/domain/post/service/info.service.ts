@@ -5,20 +5,26 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class InfoService {
   constructor(private readonly prisma: PrismaService) {}
 
+  //멤버 정보 반환
   async getMyInfo(uuid: string) {
-    const memberInfo = await this.prisma.member.findFirstOrThrow({
+    const memberInfo = await this.prisma.member.findUniqueOrThrow({
       where: { uuid: uuid },
+      include: { images: { orderBy: { id: 'desc' } } },
     });
 
-    const memberId = Number(memberInfo.id);
-    const result = await this.prisma.images.findMany({
-      where: { member_id: memberId },
-    });
+    const result = {
+      user: {
+        id: memberInfo.userid,
+        role: memberInfo.role,
+        email: memberInfo.email,
+      },
+      post: memberInfo.images.map((images) => ({
+        id: images.id.toString(),
+        imgList: images.img,
+        created: images.created,
+      })),
+    };
 
-    return result.map((img) => ({
-      id: img.id.toString(),
-      imgList: img.img,
-      created: img.created,
-    }));
+    return result;
   }
 }
