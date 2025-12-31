@@ -12,11 +12,16 @@ import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class UploadService {
   constructor(private readonly prisma: PrismaService) {}
-  async save(fileArr: string[]) {
+  async save(fileArr: string[], uuid: string) {
     try {
+      const memberInfo = await this.prisma.member.findUniqueOrThrow({
+        where: { uuid: uuid },
+      });
       await this.prisma.$transaction(async (tx) => {
         // 임시로 값 넣어둠 13
-        await tx.images.create({ data: { img: fileArr, member_id: 13 } });
+        await tx.images.create({
+          data: { img: fileArr, member_id: memberInfo.id },
+        });
       });
 
       //큐 등록

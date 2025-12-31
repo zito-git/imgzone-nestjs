@@ -23,11 +23,12 @@ export class PostController {
   @HttpCode(HttpStatus.OK)
   @Post('upload')
   @UseInterceptors(FilesInterceptor('files', 10, imageUploadOptions))
-  uploadFile(@UploadedFiles() files: Array<Express.Multer.File>) {
+  uploadFile(@UploadedFiles() files: Array<Express.Multer.File>, @Req() req) {
     const fileArr: string[] = files.map((file) => file.filename);
 
     console.log(files);
-    return this.uploadService.save(fileArr);
+    const uuid: string = req.user.id;
+    return this.uploadService.save(fileArr, uuid);
   }
 
   @Get('info')
