@@ -20,7 +20,9 @@ export class InfoService {
       },
       post: memberInfo.images.map((images) => ({
         id: images.id.toString(),
-        imgList: images.img,
+        imgList: images.img.map((img: string) =>
+          img.replace(/\.(jpg|jpeg|png|heic|heif)$/i, '.webp'),
+        ),
         created: images.created,
       })),
     };
