@@ -12,7 +12,7 @@ import { RoleGuard } from './guard/role.guard';
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '30m' }, //30분
+      signOptions: { expiresIn: '120m' }, //120분
     }),
   ],
   providers: [
