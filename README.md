@@ -1,4 +1,4 @@
-# ImgZone Backend
+# ImgZone
 
 ImgZone의 백엔드 API 서버입니다. NestJS 프레임워크 기반으로 구축되었으며, 이미지 호스팅 서비스를 위한 RESTful API를 제공합니다.
 
