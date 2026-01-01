@@ -24,5 +24,6 @@ model images {
   img       String[] @db.VarChar
   member_id BigInt
   created   DateTime @default(now()) @db.Timestamptz(6)
+  status    Boolean?
   member    member   @relation(fields: [member_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_img_key")
 }
