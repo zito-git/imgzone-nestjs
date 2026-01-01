@@ -47,7 +47,9 @@ export class InfoService {
   // 공개 및 비공개 관리
   async myStatusChange(statusDto: ChangeStatusDto): Promise<void> {
     const id = Number(statusDto.postId);
-    const status = statusDto.status === 'true' ? true : false;
+    console.log(statusDto.status);
+    const status = String(statusDto.status) === 'true' ? true : false;
+    console.log(status);
 
     await this.prisma.images.update({
       where: { id: id },
