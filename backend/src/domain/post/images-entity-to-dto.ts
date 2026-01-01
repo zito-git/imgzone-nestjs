@@ -7,12 +7,17 @@ export class ImagesEntityToDto {
 
   constructor(images: any) {
     this.id = images.id.toString();
-    this.imgList = images.img.map((url: string) =>
-      url.replace(/\.(jpg|jpeg|png|heic|heif)$/i, '.webp'),
-    );
+
+    this.imgList =
+      images.status === true
+        ? images.img.map((url: string) =>
+            url.replace(/\.(jpg|jpeg|png|heic|heif)$/i, '.webp'),
+          )
+        : ['private'];
+
     this.created = this.formatKST(images.created);
-    this.userid = images.member.userid;
-    this.role = images.member.role;
+    this.userid = images.status === true ? images.member.userid : 'private';
+    this.role = images.status === true ? images.member.role : 'private';
   }
 
   private formatKST(date: Date): string {
