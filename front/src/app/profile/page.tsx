@@ -40,7 +40,7 @@ export default function ProfilePage() {
   const fetchProfile = async () => {
     try {
       const token = sessionStorage.getItem("accessToken");
-      const response = await fetch(`${API_BASE_URL}/post/info`, {
+      const response = await fetch(`${API_BASE_URL}/info/mydata`, {
         headers: {
           Authorization: `${token}`,
         },
