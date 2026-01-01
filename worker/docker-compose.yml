@@ -1,6 +1,7 @@
 services:
   worker:
     container_name: worker
+    restart: always
     build: .
     networks:
       - app-network
