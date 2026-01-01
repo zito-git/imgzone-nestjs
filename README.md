@@ -4,16 +4,16 @@ ImgZone의 백엔드 API 서버입니다. NestJS 프레임워크 기반으로 �
 
 ## 기술 스택
 
-| 분류 | 기술 |
-|------|------|
-| Framework | NestJS 11 |
-| Language | TypeScript 5.7 |
-| Database | PostgreSQL + Prisma 7 |
-| Authentication | JWT + Passport |
-| Queue | BullMQ + Redis |
-| File Upload | Multer |
-| Security | Helmet, bcrypt |
-| Runtime | Node.js 22 |
+| 분류           | 기술                  |
+| -------------- | --------------------- |
+| Framework      | NestJS 11             |
+| Language       | TypeScript 5.7        |
+| Database       | PostgreSQL + Prisma 7 |
+| Authentication | JWT + Passport        |
+| Queue          | BullMQ + Redis        |
+| File Upload    | Multer                |
+| Security       | Helmet, bcrypt        |
+| Runtime        | Node.js 22            |
 
 ---
 
@@ -138,21 +138,21 @@ PORT=3000
 
 ### 인증 불필요 (Public)
 
-| Method | Endpoint | 설명 | Body |
-|--------|----------|------|------|
-| `GET` | `/` | 헬스 체크 | - |
-| `POST` | `/member/login` | 로그인 | `{ userid, password }` |
-| `POST` | `/member/register` | 회원가입 | `{ userid, password, email }` |
-| `GET` | `/member/get-post` | 이미지 목록 조회 | Query: `cursor`, `size` |
+| Method | Endpoint           | 설명             | Body                          |
+| ------ | ------------------ | ---------------- | ----------------------------- |
+| `GET`  | `/`                | 헬스 체크        | -                             |
+| `POST` | `/member/login`    | 로그인           | `{ userid, password }`        |
+| `POST` | `/member/register` | 회원가입         | `{ userid, password, email }` |
+| `GET`  | `/member/get-post` | 이미지 목록 조회 | Query: `cursor`, `size`       |
 
 ### 인증 필요 (JWT Required)
 
-| Method | Endpoint | 설명 | Body/Notes |
-|--------|----------|------|------------|
-| `POST` | `/post/upload` | 이미지 업로드 | FormData: `files[]`, `status` |
-| `GET` | `/info/mydata` | 내 정보 조회 | - |
-| `POST` | `/info/changePw` | 비밀번호 변경 | `{ password }` |
-| `POST` | `/info/changeStatus` | 이미지 공개상태 변경 | `{ postId, status }` |
+| Method | Endpoint             | 설명                 | Body/Notes                    |
+| ------ | -------------------- | -------------------- | ----------------------------- |
+| `POST` | `/post/upload`       | 이미지 업로드        | FormData: `files[]`, `status` |
+| `GET`  | `/info/mydata`       | 내 정보 조회         | -                             |
+| `POST` | `/info/changePw`     | 비밀번호 변경        | `{ password }`                |
+| `POST` | `/info/changeStatus` | 이미지 공개상태 변경 | `{ postId, status }`          |
 
 ---
 
@@ -171,6 +171,7 @@ Content-Type: application/json
 ```
 
 **성공 응답 (200)**
+
 ```json
 {
   "access_token": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
@@ -178,6 +179,7 @@ Content-Type: application/json
 ```
 
 **실패 응답 (401)**
+
 ```json
 {
   "message": "아이디 또는 비밀번호가 틀렸습니다.",
@@ -200,6 +202,7 @@ Content-Type: application/json
 ```
 
 **성공 응답 (201)**
+
 ```json
 {
   "message": "회원가입이 완료되었습니다."
@@ -213,6 +216,7 @@ GET /member/get-post?cursor=0&size=20
 ```
 
 **응답 (200)**
+
 ```json
 {
   "post": [
@@ -243,6 +247,7 @@ status: "true"  // true: 공개, false: 비공개
 ```
 
 **성공 응답 (201)**
+
 ```json
 {
   "id": "123",
@@ -259,6 +264,7 @@ Authorization: Bearer <token>
 ```
 
 **응답 (200)**
+
 ```json
 {
   "user": {
@@ -351,25 +357,25 @@ adminOnly() { ... }
 
 ### member (회원)
 
-| 컬럼 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt | PK, 자동증가 |
-| uuid | UUID | 고유 식별자 |
-| userid | VARCHAR(50) | 로그인 ID (Unique) |
-| password | VARCHAR(300) | bcrypt 암호화 |
-| email | VARCHAR(50) | 이메일 |
-| role | VARCHAR(10) | 역할 (기본: USER) |
-| created | TIMESTAMPTZ | 생성일시 |
+| 컬럼     | 타입         | 설명               |
+| -------- | ------------ | ------------------ |
+| id       | BigInt       | PK, 자동증가       |
+| uuid     | UUID         | 고유 식별자        |
+| userid   | VARCHAR(50)  | 로그인 ID (Unique) |
+| password | VARCHAR(300) | bcrypt 암호화      |
+| email    | VARCHAR(50)  | 이메일             |
+| role     | VARCHAR(10)  | 역할 (기본: USER)  |
+| created  | TIMESTAMPTZ  | 생성일시           |
 
 ### images (이미지)
 
-| 컬럼 | 타입 | 설명 |
-|------|------|------|
-| id | BigInt | PK, 자동증가 |
-| img | VARCHAR[] | 파일명 배열 |
-| member_id | BigInt | FK → member.id |
-| status | Boolean | 공개(true)/비공개(false) |
-| created | TIMESTAMPTZ | 생성일시 |
+| 컬럼      | 타입        | 설명                     |
+| --------- | ----------- | ------------------------ |
+| id        | BigInt      | PK, 자동증가             |
+| img       | VARCHAR[]   | 파일명 배열              |
+| member_id | BigInt      | FK → member.id           |
+| status    | Boolean     | 공개(true)/비공개(false) |
+| created   | TIMESTAMPTZ | 생성일시                 |
 
 ### ERD
 
@@ -393,13 +399,13 @@ adminOnly() { ... }
 
 ### 설정
 
-| 항목 | 값 |
-|------|-----|
-| 최대 파일 수 | 10개 |
-| 최대 파일 크기 | 50MB |
-| 허용 확장자 | `.png`, `.jpg`, `.jpeg`, `.heic`, `.heif` |
-| 저장 위치 | `./uploads/` |
-| 파일명 규칙 | `{UUID}.{원본확장자}` |
+| 항목           | 값                                        |
+| -------------- | ----------------------------------------- |
+| 최대 파일 수   | 10개                                      |
+| 최대 파일 크기 | 50MB                                      |
+| 허용 확장자    | `.png`, `.jpg`, `.jpeg`, `.heic`, `.heif` |
+| 저장 위치      | `./uploads/`                              |
+| 파일명 규칙    | `{UUID}.{원본확장자}`                     |
 
 ### 요청 예시
 
@@ -431,10 +437,10 @@ curl -X POST http://localhost:3000/post/upload \
 
 ```typescript
 // 공개 이미지: 실제 파일명 반환 (확장자 .webp로 변환)
-imgList: ["abc-123.webp", "def-456.webp"]
+imgList: ["abc-123.webp", "def-456.webp"];
 
 // 비공개 이미지: "private"으로 마스킹
-imgList: ["private"]
+imgList: ["private"];
 ```
 
 ---
@@ -453,9 +459,9 @@ imgList: ["private"]
 ```typescript
 // main.ts - 현재 설정 (개발용)
 app.enableCors({
-  origin: '*',
-  methods: '*',
-  allowedHeaders: '*',
+  origin: "*",
+  methods: "*",
+  allowedHeaders: "*",
   credentials: true,
 });
 ```
@@ -538,25 +544,25 @@ networks:
 
 ### 핵심 의존성
 
-| 패키지 | 버전 | 용도 |
-|--------|------|------|
-| @nestjs/core | ^11.0.1 | NestJS 프레임워크 |
-| @prisma/client | ^7.2.0 | PostgreSQL ORM |
-| @nestjs/jwt | ^11.0.2 | JWT 토큰 처리 |
-| passport-jwt | ^4.0.1 | JWT 인증 전략 |
-| bcrypt | ^6.0.0 | 비밀번호 암호화 |
-| bullmq | ^5.66.2 | Redis 작업 큐 |
-| helmet | ^8.1.0 | HTTP 보안 헤더 |
-| class-validator | ^0.14.3 | DTO 유효성 검증 |
+| 패키지          | 버전    | 용도              |
+| --------------- | ------- | ----------------- |
+| @nestjs/core    | ^11.0.1 | NestJS 프레임워크 |
+| @prisma/client  | ^7.2.0  | PostgreSQL ORM    |
+| @nestjs/jwt     | ^11.0.2 | JWT 토큰 처리     |
+| passport-jwt    | ^4.0.1  | JWT 인증 전략     |
+| bcrypt          | ^6.0.0  | 비밀번호 암호화   |
+| bullmq          | ^5.66.2 | Redis 작업 큐     |
+| helmet          | ^8.1.0  | HTTP 보안 헤더    |
+| class-validator | ^0.14.3 | DTO 유효성 검증   |
 
 ### 개발 의존성
 
-| 패키지 | 버전 | 용도 |
-|--------|------|------|
-| typescript | ^5.7.3 | TypeScript 컴파일러 |
-| jest | ^30.0.0 | 테스트 프레임워크 |
-| eslint | ^9.18.0 | 코드 린팅 |
-| prettier | ^3.4.2 | 코드 포맷팅 |
+| 패키지     | 버전    | 용도                |
+| ---------- | ------- | ------------------- |
+| typescript | ^5.7.3  | TypeScript 컴파일러 |
+| jest       | ^30.0.0 | 테스트 프레임워크   |
+| eslint     | ^9.18.0 | 코드 린팅           |
+| prettier   | ^3.4.2  | 코드 포맷팅         |
 
 ---
 
@@ -604,9 +610,3 @@ Request → Guard → Controller → Service → Prisma → Database
                                    │
                                    └─→ Queue (BullMQ) → Worker
 ```
-
----
-
-## 라이선스
-
-MIT License
