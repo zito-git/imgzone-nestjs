@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { PostModule } from './domain/post/post.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { InfoModule } from './domain/information/info.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { join } from 'path';
     PrismaModule,
     AuthModule,
     PostModule,
+    InfoModule,
   ],
   controllers: [AppController],
   providers: [],
