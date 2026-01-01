@@ -1,0 +1,13 @@
+services:
+  imgzone-front:
+    build: .
+    container_name: imgzone-front
+    restart: always
+    ports:
+      - "4000:4000"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    external: true

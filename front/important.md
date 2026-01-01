@@ -89,3 +89,80 @@ method : get
    }
    ]
    }
+9. 프로필에서 정보수정에서 암호변경 기능 넣기.
+   주소 : /info/changePw
+   method : post
+   파라미터 : password
+   json 형식
+   변경되면 로그아웃시키고 로그인화면으로 리다이렉션
+
+10. 메인페이지에서 로드하는데 만약에
+    {
+    "post":[
+    {
+    "id": "98",
+    "userid": "test",
+    "role": "USER",
+    "created": "2026.01.02 07:26:26",
+    "imgList":["private"]
+    }
+    ],
+    "pageInfo":{
+    "nextCursor": null,
+    "hasNext": false
+    }
+    }
+    이미지 리스트에 private가 있으면 이거 비밀글이기 떄문에 private라고 깔끔하게 꾸미기.
+
+11. 프로필 조회에 공개랑 비공개가 뭔지 알 수 있게 사진위에 작게 아이콘같은거 넣어주고 공개 비공개 둘의 변동이 용이하도록 한번 고쳐줄래
+    조회 페이지 들어가면
+    {
+    "user": {
+    "id": "a123",
+    "role": "USER",
+    "email": "a123@naver.com"
+    },
+    "post": [
+    {
+    "id": "103",
+    "imgList": [
+    "8846e45d-3911-463e-9c0e-d8fc7d72a6ff.webp"
+    ],
+    "status": true,
+    "created": "2026-01-01T14:44:01.745Z"
+    },
+    {
+    "id": "102",
+    "imgList": [
+    "c368c53f-97b0-4b71-8c36-26105d040e25.webp"
+    ],
+    "status": false,
+    "created": "2026-01-01T14:43:01.472Z"
+    },
+    {
+    "id": "101",
+    "imgList": [
+    "f0c1ce6d-7415-42bf-8b06-ebe07531058f.webp"
+    ],
+    "status": false,
+    "created": "2026-01-01T14:38:10.385Z"
+    },
+    {
+    "id": "100",
+    "imgList": [
+    "c27c5f10-c64c-445f-93c9-77019ae6c8ec.webp"
+    ],
+    "status": false,
+    "created": "2026-01-01T14:36:02.608Z"
+    },
+    {
+    "id": "99",
+    "imgList": [
+    "be8c679d-aa6c-474d-9b2b-077c15822bed.webp"
+    ],
+    "status": false,
+    "created": "2026-01-01T14:35:56.640Z"
+    }
+    ]
+    }
+    이렇게 떠
