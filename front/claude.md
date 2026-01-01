@@ -479,6 +479,65 @@ Body:
 - 스타일: iOS 스타일 토글 스위치
 - 상태 표시: 아이콘 + 텍스트 ("공개" / "비공개")
 
+### 24차 작업 - 프로필 페이지 공개/비공개 표시 및 변경
+- [x] `src/types/index.ts` 수정
+  - `ProfilePost` 타입에 `status: boolean` 필드 추가
+- [x] `src/app/profile/page.tsx` 수정
+  - `togglingPostId` 상태 추가 (로딩 중인 포스트 ID)
+  - `handleToggleStatus()` 함수 추가
+    - POST `/info/changeStatus` API 호출
+    - 파라미터: `{ postId, status }`
+    - 401 에러 처리
+    - 성공 시 로컬 상태 업데이트
+  - 포스트 카드 왼쪽 상단에 공개/비공개 토글 버튼 추가
+    - 공개: indigo-500 배경 + 지구본 아이콘
+    - 비공개: slate-600 배경 + 자물쇠 아이콘
+    - 로딩 중: 스피너 표시
+    - 클릭 시 상태 토글
+
+**API 스펙:**
+```
+# 공개/비공개 상태 변경
+POST /info/changeStatus
+Authorization: Bearer {token}
+Content-Type: application/json
+Body: { postId: string, status: boolean }
+```
+
+**UI 표시:**
+| 상태 | 아이콘 | 배경색 |
+|------|--------|--------|
+| 공개 (true) | 지구본 | indigo-500 |
+| 비공개 (false) | 자물쇠 | slate-600 |
+
+### 25차 작업 - 헤더 로고 리디자인
+- [x] `src/components/common/Navbar.tsx` 수정
+  - 로고 아이콘 변경
+    - 단순 "I" 텍스트 → 이미지 아이콘 (갤러리/사진)
+    - 3색 그라데이션: indigo → purple → pink
+    - 호버 시 글로우 효과 강화
+  - 로고 텍스트 개선
+    - 그라데이션 텍스트 적용
+    - 서브타이틀 "IMAGE SHARING" 추가
+    - 호버 인터랙션 추가
+
+**변경 전:**
+```
+[I] ImgZone
+```
+
+**변경 후:**
+```
+[🖼️] ImgZone
+      IMAGE SHARING
+```
+
+**디자인 요소:**
+- 아이콘: 이미지/갤러리 SVG 아이콘
+- 그라데이션: indigo-500 → purple-500 → pink-500
+- 글로우: 호버 시 배경 블러 효과 강화
+- 서브타이틀: 10px, slate-400, 대문자 트래킹
+
 ---
 
 ## 수정/개선 필요

@@ -25,11 +25,25 @@ export default function Navbar() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">I</span>
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9">
+              {/* 배경 글로우 효과 */}
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl blur-sm opacity-40 group-hover:opacity-60 transition-opacity" />
+              {/* 메인 로고 */}
+              <div className="relative w-full h-full rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg group-hover:shadow-indigo-500/25 transition-shadow">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
             </div>
-            <span className="text-lg font-semibold text-slate-800">ImgZone</span>
+            <div className="flex flex-col">
+              <span className="text-lg font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent leading-tight">
+                ImgZone
+              </span>
+              <span className="text-[10px] text-slate-400 font-medium tracking-wider -mt-0.5">
+                IMAGE SHARING
+              </span>
+            </div>
           </Link>
 
           {/* Desktop Menu */}

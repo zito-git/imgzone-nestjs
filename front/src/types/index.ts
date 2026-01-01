@@ -78,6 +78,7 @@ export interface ProfileUser {
 export interface ProfilePost {
   id: string;
   imgList: string[];
+  status: boolean;
   created: string;
 }
 

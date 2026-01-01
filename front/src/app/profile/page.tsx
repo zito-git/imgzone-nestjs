@@ -28,6 +28,7 @@ export default function ProfilePage() {
     confirmPassword: "",
   });
   const [isPasswordChanging, setIsPasswordChanging] = useState(false);
+  const [togglingPostId, setTogglingPostId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -129,6 +130,57 @@ export default function ProfilePage() {
       toast.error("비밀번호 변경에 실패했습니다");
     } finally {
       setIsPasswordChanging(false);
+    }
+  };
+
+  const handleToggleStatus = async (e: React.MouseEvent, post: ProfilePost) => {
+    e.stopPropagation(); // 카드 클릭 이벤트 방지
+
+    if (togglingPostId) return; // 이미 처리 중이면 무시
+
+    setTogglingPostId(post.id);
+    try {
+      const token = sessionStorage.getItem("accessToken");
+      const response = await fetch(`${API_BASE_URL}/info/changeStatus`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${token}`,
+        },
+        body: JSON.stringify({
+          postId: post.id,
+          status: !post.status
+        }),
+      });
+
+      if (response.status === 401) {
+        sessionStorage.removeItem("accessToken");
+        sessionStorage.removeItem("user");
+        toast.error("토큰이 만료되었습니다. 다시 로그인해주세요.");
+        router.push("/login");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("상태 변경에 실패했습니다");
+      }
+
+      // 로컬 상태 업데이트
+      setProfileData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          post: prev.post.map((p) =>
+            p.id === post.id ? { ...p, status: !p.status } : p
+          ),
+        };
+      });
+
+      toast.success(post.status ? "비공개로 변경되었습니다" : "공개로 변경되었습니다");
+    } catch (error) {
+      toast.error("상태 변경에 실패했습니다");
+    } finally {
+      setTogglingPostId(null);
     }
   };
 
@@ -243,6 +295,30 @@ export default function ProfilePage() {
                     className="w-full h-full object-cover"
                   />
 
+                  {/* 공개/비공개 토글 버튼 */}
+                  <button
+                    onClick={(e) => handleToggleStatus(e, post)}
+                    disabled={togglingPostId === post.id}
+                    className={`absolute top-2 left-2 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                      post.status
+                        ? "bg-indigo-500 hover:bg-indigo-600 text-white"
+                        : "bg-slate-600 hover:bg-slate-700 text-white"
+                    } ${togglingPostId === post.id ? "opacity-50" : ""}`}
+                    title={post.status ? "공개 (클릭하여 비공개로 변경)" : "비공개 (클릭하여 공개로 변경)"}
+                  >
+                    {togglingPostId === post.id ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : post.status ? (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ) : (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    )}
+                  </button>
+
                   {/* 이미지 개수 인디케이터 */}
                   {post.imgList.length > 1 && (
                     <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
@@ -264,7 +340,7 @@ export default function ProfilePage() {
                   )}
 
                   {/* 호버 시 오버레이 */}
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
                 </motion.div>
               ))}
             </div>
