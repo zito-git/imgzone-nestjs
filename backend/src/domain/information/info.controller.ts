@@ -1,5 +1,14 @@
-import { Controller, Get, HttpCode, HttpStatus, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { InfoService } from './info.service';
+import { ReqPasswordChangeDto } from './dto/reqPasswordChangeDto';
 
 @Controller('info')
 export class InfoController {
@@ -10,5 +19,17 @@ export class InfoController {
   getMyInfo(@Req() req) {
     const uuid: string = req.user.id;
     return this.infoService.getMyInfo(uuid);
+  }
+
+  @Post('changePw')
+  @HttpCode(HttpStatus.OK)
+  changePassword(
+    @Req() req,
+    @Body() reqPasswordChangeDto: ReqPasswordChangeDto,
+  ) {
+    const uuid: string = req.user.id;
+    const password: string = reqPasswordChangeDto.password;
+
+    return this.infoService.changePassword(uuid, password);
   }
 }

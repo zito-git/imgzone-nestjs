@@ -29,4 +29,15 @@ export class InfoService {
 
     return result;
   }
+
+  async changePassword(uuid: string, password: string): Promise<void> {
+    const bcrypt = require('bcrypt');
+    const changedPw = await bcrypt.hash(password, 10);
+    await this.prisma.member.update({
+      where: { uuid: uuid },
+      data: {
+        password: changedPw,
+      },
+    });
+  }
 }
