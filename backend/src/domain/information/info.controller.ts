@@ -10,6 +10,11 @@ import {
 import { InfoService } from './info.service';
 import { ReqPasswordChangeDto } from './dto/reqPasswordChangeDto';
 
+export class ChangeStatusDto {
+  postId: Number;
+  status: string;
+}
+
 @Controller('info')
 export class InfoController {
   constructor(private readonly infoService: InfoService) {}
@@ -31,5 +36,11 @@ export class InfoController {
     const password: string = reqPasswordChangeDto.password;
 
     return this.infoService.changePassword(uuid, password);
+  }
+
+  @Post('changeStatus')
+  @HttpCode(HttpStatus.OK)
+  changeStatus(@Body() changeStatusDto: ChangeStatusDto) {
+    return this.infoService.myStatusChange(changeStatusDto);
   }
 }

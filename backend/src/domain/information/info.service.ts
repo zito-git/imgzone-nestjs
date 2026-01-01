@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { ChangeStatusDto } from './info.controller';
 
 @Injectable()
 export class InfoService {
@@ -23,6 +24,7 @@ export class InfoService {
         imgList: images.img.map((img: string) =>
           img.replace(/\.(jpg|jpeg|png|heic|heif)$/i, '.webp'),
         ),
+        status: images.status,
         created: images.created,
       })),
     };
@@ -30,6 +32,7 @@ export class InfoService {
     return result;
   }
 
+  //비밀번호 변경
   async changePassword(uuid: string, password: string): Promise<void> {
     const bcrypt = require('bcrypt');
     const changedPw = await bcrypt.hash(password, 10);
@@ -38,6 +41,17 @@ export class InfoService {
       data: {
         password: changedPw,
       },
+    });
+  }
+
+  // 공개 및 비공개 관리
+  async myStatusChange(statusDto: ChangeStatusDto): Promise<void> {
+    const id = Number(statusDto.postId);
+    const status = statusDto.status === 'true' ? true : false;
+
+    await this.prisma.images.update({
+      where: { id: id },
+      data: { status: status },
     });
   }
 }
