@@ -17,13 +17,17 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { isLoggedIn, isLoading } = useAuth();
+  const { isLoggedIn, isLoading, logout } = useAuth();
   const [profileData, setProfileData] = useState<ProfileResponse | null>(null);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState<ProfilePost | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editForm, setEditForm] = useState({ username: "", email: "" });
+  const [passwordForm, setPasswordForm] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [isPasswordChanging, setIsPasswordChanging] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isLoggedIn) {
@@ -61,7 +65,6 @@ export default function ProfilePage() {
 
       const data = await response.json();
       setProfileData(data);
-      setEditForm({ username: data.user.id, email: data.user.email });
     } catch (error) {
       toast.error("프로필을 불러오는데 실패했습니다");
     } finally {
@@ -69,9 +72,64 @@ export default function ProfilePage() {
     }
   };
 
-  const handleEditProfile = async () => {
-    toast.info("프로필 수정 기능은 준비 중입니다");
+  const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
+    setPasswordForm({ newPassword: "", confirmPassword: "" });
+  };
+
+  const handleChangePassword = async () => {
+    // 유효성 검사
+    if (!passwordForm.newPassword) {
+      toast.error("새 비밀번호를 입력해주세요");
+      return;
+    }
+    if (passwordForm.newPassword.length < 8) {
+      toast.error("비밀번호는 8자 이상이어야 합니다");
+      return;
+    }
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error("비밀번호가 일치하지 않습니다");
+      return;
+    }
+
+    setIsPasswordChanging(true);
+    try {
+      const token = sessionStorage.getItem("accessToken");
+      const response = await fetch(`${API_BASE_URL}/info/changePw`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${token}`,
+        },
+        body: JSON.stringify({ password: passwordForm.newPassword }),
+      });
+
+      if (response.status === 401) {
+        sessionStorage.removeItem("accessToken");
+        sessionStorage.removeItem("user");
+        toast.error("토큰이 만료되었습니다. 다시 로그인해주세요.");
+        router.push("/login");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("비밀번호 변경에 실패했습니다");
+      }
+
+      toast.success("비밀번호가 변경되었습니다. 다시 로그인해주세요.");
+      setIsEditModalOpen(false);
+      setPasswordForm({ newPassword: "", confirmPassword: "" });
+
+      // 로그아웃 후 로그인 페이지로 리다이렉트
+      logout();
+      setTimeout(() => {
+        router.push("/login");
+      }, 100);
+    } catch (error) {
+      toast.error("비밀번호 변경에 실패했습니다");
+    } finally {
+      setIsPasswordChanging(false);
+    }
   };
 
   const handlePostClick = (post: ProfilePost) => {
@@ -128,7 +186,7 @@ export default function ProfilePage() {
                 size="sm"
                 onClick={() => setIsEditModalOpen(true)}
               >
-                프로필 수정
+                정보 수정
               </Button>
             </div>
             <h1 className="text-2xl font-bold text-slate-900 mb-1">
@@ -216,41 +274,75 @@ export default function ProfilePage() {
 
       <Modal
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        title="프로필 수정"
+        onClose={handleCloseEditModal}
+        title="정보 수정"
         size="sm"
       >
         <div className="space-y-4">
-          <Input
-            label="사용자 이름"
-            value={editForm.username}
-            onChange={(e) =>
-              setEditForm((p) => ({ ...p, username: e.target.value }))
-            }
-            disabled
-          />
-          <Input
-            label="이메일"
-            type="email"
-            value={editForm.email}
-            onChange={(e) =>
-              setEditForm((p) => ({ ...p, email: e.target.value }))
-            }
-          />
+          {/* 내 정보 (수정 불가) */}
+          <div className="space-y-3">
+            <Input
+              label="아이디"
+              value={profileData?.user.id || ""}
+              disabled
+            />
+            <Input
+              label="이메일"
+              type="email"
+              value={profileData?.user.email || ""}
+              disabled
+            />
+          </div>
+
+          {/* 구분선 */}
+          <div className="border-t border-slate-200 pt-4">
+            <h3 className="text-sm font-medium text-slate-700 mb-3">
+              비밀번호 변경
+            </h3>
+            <div className="space-y-3">
+              <Input
+                label="새 비밀번호"
+                type="password"
+                value={passwordForm.newPassword}
+                onChange={(e) =>
+                  setPasswordForm((p) => ({ ...p, newPassword: e.target.value }))
+                }
+                placeholder="8자 이상 입력"
+              />
+              <Input
+                label="비밀번호 확인"
+                type="password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) =>
+                  setPasswordForm((p) => ({
+                    ...p,
+                    confirmPassword: e.target.value,
+                  }))
+                }
+                placeholder="비밀번호를 다시 입력"
+              />
+              <p className="text-xs text-slate-500">
+                비밀번호 변경 후 다시 로그인해야 합니다.
+              </p>
+            </div>
+          </div>
+
           <div className="flex gap-2 pt-2">
             <Button
               variant="ghost"
-              onClick={() => setIsEditModalOpen(false)}
+              onClick={handleCloseEditModal}
               className="flex-1"
             >
               취소
             </Button>
             <Button
               variant="primary"
-              onClick={handleEditProfile}
+              onClick={handleChangePassword}
+              isLoading={isPasswordChanging}
               className="flex-1"
+              disabled={!passwordForm.newPassword || !passwordForm.confirmPassword}
             >
-              저장
+              비밀번호 변경
             </Button>
           </div>
         </div>

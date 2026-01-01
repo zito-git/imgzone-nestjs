@@ -395,6 +395,90 @@ Response: {
 - 토스트가 표시될 시간을 주기 위해 setTimeout 사용
 - 메시지 통일: "토큰이 만료되었습니다. 다시 로그인해주세요."
 
+### 21차 작업 - 정보 수정 모달 (비밀번호 변경 통합)
+- [x] `src/app/profile/page.tsx` 수정
+  - 버튼 통합: "프로필 수정" + "비밀번호 변경" → "정보 수정" 하나로
+  - 정보 수정 모달 UI 개선
+    - 아이디 표시 (수정 불가, disabled)
+    - 이메일 표시 (수정 불가, disabled)
+    - 구분선
+    - 비밀번호 변경 섹션
+      - 새 비밀번호 입력 (8자 이상)
+      - 비밀번호 확인 입력
+      - 안내 문구
+    - 취소/비밀번호 변경 버튼
+  - handleChangePassword() 함수
+    - 유효성 검사 (8자 이상, 비밀번호 일치)
+    - POST `/info/changePw` API 호출
+    - 401 에러 처리
+    - 성공 시 로그아웃 후 로그인 페이지로 리다이렉트
+  - 불필요한 상태 제거 (editForm, isPasswordModalOpen)
+
+**API 스펙:**
+```
+# 비밀번호 변경
+POST /info/changePw
+Authorization: Bearer {token}
+Content-Type: application/json
+Body: { password: string }
+```
+
+**동작 방식:**
+1. 프로필 페이지에서 "정보 수정" 버튼 클릭
+2. 모달에서 내 정보 확인 (아이디, 이메일 - 수정 불가)
+3. 새 비밀번호 입력 및 확인
+4. 유효성 검사 (8자 이상, 비밀번호 일치)
+5. API 호출 성공 시:
+   - 성공 토스트 메시지 표시
+   - 로그아웃 처리
+   - 로그인 페이지로 리다이렉트
+
+### 22차 작업 - 비밀글(Private) 표시 기능
+- [x] `src/app/page.tsx` 수정
+  - isPrivatePost() 함수 추가
+    - imgList가 ["private"] 인 경우 비밀글로 판단
+  - 비밀글 UI
+    - 이미지 대신 자물쇠 아이콘 + "비공개" 텍스트 표시
+    - 배경색: slate-200, 테두리: slate-300
+    - 호버 효과 제거 (cursor-default)
+  - 비밀글 클릭 시 이미지 뷰어 열지 않음
+
+**비밀글 판단 기준:**
+- `imgList` 배열의 첫 번째 요소가 `"private"` 문자열인 경우
+- 예: `{ imgList: ["private"] }` → 비밀글
+
+**UI 표시:**
+- 일반 포스트: 이미지 썸네일 + 호버 오버레이
+- 비밀글: 자물쇠 아이콘 + "비공개" 텍스트 (회색 배경)
+
+### 23차 작업 - 업로드 시 공개/비공개 토글
+- [x] `src/components/image/ImageUploader.tsx` 수정
+  - `isPublic` 상태 추가 (기본값: true)
+  - `onUpload` 콜백 타입 변경: `(files: File[], status: boolean) => Promise<void>`
+  - iOS 스타일 토글 스위치 UI 추가
+    - 공개: indigo-500 배경 + 지구본 아이콘
+    - 비공개: slate-300 배경 + 자물쇠 아이콘
+  - 업로드/취소 시 `isPublic` 상태 초기화
+- [x] `src/app/page.tsx` 수정
+  - `handleUpload` 함수에 `status` 파라미터 추가
+  - FormData에 `status` 값 추가 (true/false 문자열)
+
+**API 변경:**
+```
+# 이미지 업로드
+POST /post/upload
+Content-Type: multipart/form-data
+Authorization: Bearer {token}
+Body:
+  - files: File[] (최대 10개)
+  - status: string ("true" = 공개, "false" = 비공개)
+```
+
+**토글 UI:**
+- 위치: 미리보기 그리드 아래, 버튼 위
+- 스타일: iOS 스타일 토글 스위치
+- 상태 표시: 아이콘 + 텍스트 ("공개" / "비공개")
+
 ---
 
 ## 수정/개선 필요
@@ -411,6 +495,7 @@ Response: {
 - [x] 상대 시간 표시
 - [x] 업로드 총 용량 제한 (50MB)
 - [x] 프로필 조회 API 연동
+- [x] 비밀번호 변경 기능
 - [ ] 이미지 삭제 기능
 - [ ] SEO 메타데이터 설정
 

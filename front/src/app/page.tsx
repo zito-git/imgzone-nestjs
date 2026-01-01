@@ -80,11 +80,12 @@ export default function HomePage() {
   };
 
   // 이미지 업로드
-  const handleUpload = async (files: File[]) => {
+  const handleUpload = async (files: File[], status: boolean) => {
     const formData = new FormData();
     files.forEach((file) => {
       formData.append('files', file);
     });
+    formData.append('status', String(status));
 
     let response: Response;
     try {
@@ -139,8 +140,15 @@ export default function HomePage() {
     return `${API_URL}/uploads/${filename}`;
   };
 
+  // 비밀글 여부 확인
+  const isPrivatePost = (post: Post) => {
+    return post.imgList.length === 1 && post.imgList[0] === 'private';
+  };
+
   // 이미지 클릭
   const handleImageClick = (post: Post) => {
+    // 비밀글은 클릭해도 뷰어 열지 않음
+    if (isPrivatePost(post)) return;
     setSelectedPost(post);
     setCurrentImageIndex(0);
   };
@@ -220,32 +228,51 @@ export default function HomePage() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="group cursor-pointer"
+                  className={`group ${isPrivatePost(post) ? 'cursor-default' : 'cursor-pointer'}`}
                   onClick={() => handleImageClick(post)}
                 >
-                  <div className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 shadow-sm border border-slate-200 transition-all duration-300 group-hover:shadow-md group-hover:border-slate-300">
-                    {post.imgList.length > 0 && (
-                      <img
-                        src={getImageUrl(post.imgList[0])}
-                        alt={`Post ${post.id}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                    )}
-
-                    {/* 여러 이미지 표시 */}
-                    {post.imgList.length > 1 && (
-                      <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
-                        +{post.imgList.length - 1}
+                  <div className={`relative aspect-square rounded-xl overflow-hidden shadow-sm border transition-all duration-300 ${
+                    isPrivatePost(post)
+                      ? 'bg-slate-200 border-slate-300'
+                      : 'bg-slate-100 border-slate-200 group-hover:shadow-md group-hover:border-slate-300'
+                  }`}>
+                    {isPrivatePost(post) ? (
+                      /* 비밀글 UI */
+                      <div className="w-full h-full flex flex-col items-center justify-center">
+                        <div className="w-14 h-14 rounded-full bg-slate-300 flex items-center justify-center mb-3">
+                          <svg className="w-7 h-7 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                          </svg>
+                        </div>
+                        <p className="text-slate-500 text-sm font-medium">비공개</p>
                       </div>
-                    )}
+                    ) : (
+                      /* 일반 이미지 */
+                      <>
+                        {post.imgList.length > 0 && (
+                          <img
+                            src={getImageUrl(post.imgList[0])}
+                            alt={`Post ${post.id}`}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        )}
 
-                    {/* 호버 오버레이 */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <div className="absolute bottom-0 left-0 right-0 p-3">
-                        <p className="text-white text-sm font-medium truncate">{post.userid}</p>
-                        <p className="text-white/70 text-xs">{formatRelativeTime(post.created)}</p>
-                      </div>
-                    </div>
+                        {/* 여러 이미지 표시 */}
+                        {post.imgList.length > 1 && (
+                          <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full">
+                            +{post.imgList.length - 1}
+                          </div>
+                        )}
+
+                        {/* 호버 오버레이 */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="absolute bottom-0 left-0 right-0 p-3">
+                            <p className="text-white text-sm font-medium truncate">{post.userid}</p>
+                            <p className="text-white/70 text-xs">{formatRelativeTime(post.created)}</p>
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </motion.div>
               ))}

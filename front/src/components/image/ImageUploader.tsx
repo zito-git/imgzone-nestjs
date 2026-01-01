@@ -6,7 +6,7 @@ import Button from "@/components/common/Button";
 import { formatFileSize } from "@/lib/utils";
 
 interface ImageUploaderProps {
-  onUpload: (files: File[]) => Promise<void>;
+  onUpload: (files: File[], status: boolean) => Promise<void>;
   maxSize?: number;
   maxFiles?: number;
   acceptedExtensions?: string[];
@@ -22,6 +22,7 @@ export default function ImageUploader({
   const [previews, setPreviews] = useState<{ file: File; url: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isPublic, setIsPublic] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 총 파일 용량 계산 (50MB 제한)
@@ -107,10 +108,11 @@ export default function ImageUploader({
     setIsUploading(true);
     setError(null);
     try {
-      await onUpload(previews.map((p) => p.file));
+      await onUpload(previews.map((p) => p.file), isPublic);
       // 성공 시 미리보기 초기화
       previews.forEach((p) => URL.revokeObjectURL(p.url));
       setPreviews([]);
+      setIsPublic(true); // 초기화
     } catch (err) {
       setError(err instanceof Error ? err.message : "업로드에 실패했습니다");
     } finally {
@@ -122,6 +124,7 @@ export default function ImageUploader({
     previews.forEach((p) => URL.revokeObjectURL(p.url));
     setPreviews([]);
     setError(null);
+    setIsPublic(true);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -241,6 +244,37 @@ export default function ImageUploader({
                   </button>
                 </motion.div>
               ))}
+            </div>
+
+            {/* 공개/비공개 토글 */}
+            <div className="mt-4 flex items-center justify-between py-3 px-4 bg-slate-50 rounded-lg border border-slate-200">
+              <div className="flex items-center gap-2">
+                {isPublic ? (
+                  <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                )}
+                <span className="text-sm text-slate-700">
+                  {isPublic ? "공개" : "비공개"}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsPublic(!isPublic)}
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                  isPublic ? 'bg-indigo-500' : 'bg-slate-300'
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+                    isPublic ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
             </div>
 
             <div className="mt-4 flex items-center justify-between">
